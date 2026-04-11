@@ -198,7 +198,12 @@ def inject_css():
         .section-text { font-size: 14px; color: #CBD5E1; line-height: 1.6; margin: 0; }
 
         /* Disclaimer */
-        .disclaimer { text-align: center; font-size: 11px; color: #475569; line-height: 1.6; margin-top: 48px; padding-bottom: 32px; }
+        .disclaimer {
+            text-align: center; font-size: 14px; color: #FFFFFF; font-weight: 600;
+            line-height: 1.6; margin-top: 48px; padding: 20px;
+            background: rgba(255,255,255,0.06); border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.15);
+        }
 
         /* Risk distribution */
         .risk-dist { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 16px; }
@@ -428,9 +433,20 @@ def main():
         st.caption("This is critical — risk is always relative to which party you are.")
         priority = st.text_input("What's your priority? (optional)", placeholder="e.g., Limiting liability, protecting IP, easy exit, balanced deal")
 
+        # Mandatory disclaimer checkbox
+        st.markdown("")
+        disclaimer_accepted = st.checkbox(
+            "I understand this does not constitute legal advice and the maker of this app cannot be held responsible for the same.",
+            key="disclaimer_accepted",
+        )
+        if not disclaimer_accepted:
+            st.warning("You must accept the disclaimer above to proceed.", icon="⚠️")
+
+        intake_ready = bool(contract_type and jurisdiction.strip() and user_role.strip() and disclaimer_accepted)
+
         col1, col2 = st.columns([1, 1])
         with col1:
-            if st.button("Continue →", type="primary", disabled=not (contract_type and jurisdiction.strip() and user_role.strip())):
+            if st.button("Continue →", type="primary", disabled=not intake_ready):
                 st.session_state.contract_type = contract_type
                 st.session_state.jurisdiction = jurisdiction
                 st.session_state.user_role = user_role
@@ -547,7 +563,7 @@ def main():
             st.rerun()
 
     # Disclaimer
-    st.markdown('<p class="disclaimer">This tool provides informational analysis only and does not constitute legal advice. Consult a qualified attorney for legal decisions.</p>', unsafe_allow_html=True)
+    st.markdown('<p class="disclaimer">⚠️ This tool provides informational analysis only and does not constitute legal advice. The maker of this app cannot be held responsible for any decisions made based on this analysis. Consult a qualified attorney for legal decisions.</p>', unsafe_allow_html=True)
 
 
 if __name__ == "__main__":
